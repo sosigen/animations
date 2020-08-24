@@ -1,7 +1,7 @@
 let canvas = document.querySelector("canvas");
 let c = canvas.getContext("2d");
 const palette = ["#e09f7d", "#ef5d60", "#ec4067", "#a01a7d", "#311847"];
-let distance = 50;
+let distance = 20;
 let circles = new Array(20);
 let fps = 60;
 let now, delta;
@@ -30,6 +30,7 @@ const mousePosition = function (canvas, event) {
   };
 };
 const drawBall = function (ball) {
+  c.globalAlpha = ball.alpha;
   c.beginPath();
   c.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2, true);
   c.closePath();
@@ -47,7 +48,7 @@ function init() {
   let mouse_position = mousePosition(canvas, event);
   let mX = mouse_position.x;
   let mY = mouse_position.y;
-  circles = circles.concat(new Array(20));
+  circles = circles.concat(new Array(10));
   for (let i = 0; i < circles.length; i++) {
     if (!circles[i]) {
       circles[i] = {
@@ -55,8 +56,9 @@ function init() {
         y: rand(mY - distance, mY + distance),
         vx: rand(-5, 5, 0),
         vy: rand(-5, 5, 0),
-        size: rand(10, 30),
+        size: rand(5, 15),
         color: palette[rand(0, palette.length)],
+        alpha: 1
       };
     }
   }
@@ -70,9 +72,10 @@ function draw() {
     then = now - (delta % interval);
     clear();
     for (ball of circles) {
+      drawBall(ball);
       ball.x += ball.vx;
       ball.y += ball.vy;
-      drawBall(ball);
+      ball.alpha -= 0.03;
       if (
         ball.y + ball.vy + ball.size > canvas.height ||
         ball.y + ball.vy + ball.size < 0
@@ -85,6 +88,7 @@ function draw() {
       ) {
         circles.splice(circles.indexOf(ball), 1);
       }
+      if(ball.alpha <= 0) circles.splice(circles.indexOf(ball), 1);
     }
   }
 }
